@@ -3495,6 +3495,90 @@ public function reportSku()
 
 }
 
+public function reportSkuBaru()
+
+{
+
+	$dataDas['title'] = "Sku Report BARU";
+
+	$dataDas['desk'] = "App Retail";
+
+	$dataDas['page'] = "report/skuBaru";
+
+	$dataDas['baName'] = $this->sada->getBaName();
+
+	$dataDas['tlName'] = $this->sada->getTlName();
+
+	$dataDas['toko'] = $this->sada->getToko();
+
+
+
+	$dataDas['js'][]  = "assets/global/plugins/bootstrap/js/bootstrap.min.js";
+
+	$dataDas['js'][]  = "assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js";
+
+	$dataDas['js'][]  = "assets/global/plugins/jquery-validation/js/jquery.validate.min.js";
+
+
+
+	$dataDas['js'][]  = "assets/global/scripts/app.min.js";
+
+	$dataDas['js'][]  = "assets/pages/scripts/form-validation.min.js";
+
+	$dataDas['css'][]  	= "assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css";
+
+	$dataDas['css'][]  	= "assets/global/plugins/select2/css/select2-bootstrap.min.css";
+
+	$dataDas['css'][]	= "assets/global/plugins/select2/css/select2.min.css";
+
+	$dataDas['css'][]	= "assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css";
+
+	$dataDas['css'][]	= "assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css";
+
+	$dataDas['css'][]	= "assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css";
+
+	$dataDas['css'][]	= "assets/global/plugins/datatables/datatables.min.css";
+
+	$dataDas['css'][]	= "assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css";
+
+	$dataDas['js'][]	= "assets/global/scripts/datatable.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/datatables/datatables.min.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js";
+
+	$dataDas['js'][]	= "assets/pages/scripts/table-datatables-managed.min.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js";
+
+	$dataDas['js'][]	= "assets/pages/scripts/components-bootstrap-select.min.js";
+
+	$dataDas['js'][]	= "assets/custom/tagSelection.js";
+
+	$dataDas['js'][]	= "assets/custom/tagDate.js";
+
+	$dataDas['js'][]	= "assets/pages/scripts/components-select2.min.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/select2/js/select2.full.min.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js";
+
+	$dataDas['js'][]	= "assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js";
+
+	$dataDas['js'][]	= "assets/pages/scripts/components-date-time-pickers.min.js";
+
+	$dataDas['js'][] ="assets/custom/reportSkuBaru.js";
+
+
+
+
+
+	$this->load->view('view_awal', $dataDas, FALSE);
+
+}
+
 
 
 public function skuExcel()

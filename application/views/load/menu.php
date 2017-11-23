@@ -22,6 +22,9 @@
                 <li class="nav-item  ">
                     <?php echo anchor('aktifitas-user', '<span class="title">Aktifitas User</span>', 'class="nav-link "'); ?>
                 </li>
+                <li class="nav-item  ">
+                    <?php echo anchor('reportsku', '<span class="title">Report SKU</span>', 'class="nav-link "'); ?>
+                </li>
                                 <!-- <li class="nav-item  ">
                                     <?php echo anchor('url', '<span class="title">Tambah User</span>', 'class="nav-link "'); ?>
                                 </li>

@@ -277,6 +277,8 @@ $route['topAccount'] 				= 'Dashboard/reportTopAccount';
 
 	$route['report'] 				= 'Dashboard/reportSku';
 
+	$route['reportsku'] 				= 'Dashboard/reportSkuBaru';
+
 	$route['report/skuExcel'] = 'Dashboard/skuExcel';
 
 	$route['report/skuReport']['POST']= 'Dashboard/insertReportSku';
