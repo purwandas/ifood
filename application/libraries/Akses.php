@@ -15,6 +15,7 @@ class Akses
 	{
 		$this->sesi  = $this->ci->session->userdata('isLogin');
 		$this->hak = $this->ci->session->userdata('akses');
+		// echo "<script>alert('".$this->sesi."');</script>";
 		if($this->sesi != TRUE){
 			redirect('login','refresh');
 			exit();

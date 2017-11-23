@@ -52,7 +52,7 @@
 
         }
 
-        var base_url = window.location.origin;
+        var base_url = window.location.origin+"/ba-promina";
 
         var arr = {"nama_cabang" : nama_cabang, "nama_kota" : nama_kota};
 
@@ -64,7 +64,7 @@
 
         }).done(function(){
 
-          window.location.href = window.location.origin+'/kota.jsp';
+          window.location.href = window.location.origin+"/ba-promina"+'/kota.jsp';
 
         });
 
@@ -96,7 +96,7 @@
 
     //
 
-		//         var base_url = window.location.origin;
+		//         var base_url = window.location.origin+"/ba-promina";
 
 		//         var fields = $(":input").serializeArray();
 
@@ -112,7 +112,7 @@
 
 		//             success : function(data) {
 
-		//                 window.location.href = window.location.origin+'/dataKota.jsp';
+		//                 window.location.href = window.location.origin+"/ba-promina"+'/dataKota.jsp';
 
 		//             }
 

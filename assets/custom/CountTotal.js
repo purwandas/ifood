@@ -9,7 +9,7 @@ $("#a").validate({
         
     },
     submitHandler: function(form) {
-    var base_url = window.location.origin;
+    var base_url = window.location.origin+"/ba-promina";
     var fields = $(":input").serializeArray();
     if($.fn.dataTable.isDataTable('#dataContactTotal')){
          $('#dataContactTotal').DataTable().clear();

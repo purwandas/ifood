@@ -76,7 +76,15 @@
 
                                                     </span>
 
-                                                    <input type="password" class="form-control" name="password" placeholder="Password"> </div>
+                                                    <?php
+                                                        if ($loopEditUser->akses==1) {
+                                                            echo "<input type='text' class='form-control' name='password' value='".$loopEditUser->password."'> ";
+                                                         }else{
+                                                            echo "<input type='password' class='form-control' name='password' placeholder='Password'> ";
+                                                         }
+                                                    ?>
+
+                                                </div>
 
                                                     <!-- <div style="padding-top: 10px;">
 

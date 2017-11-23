@@ -4,7 +4,7 @@ $('#topSku').on('click', function (e) {
 });
 
 function fetchTopSkuData() {
-    var base_url_semmi = window.location.origin + '/';
+    var base_url_semmi = window.location.origin+"/ba-promina" + '/';
     var startDate = $('#startDate').val();
     var endDate = $('#endDate').val();
     var topSkuArray = [];
@@ -55,7 +55,7 @@ function fetchTopSkuData() {
 $(document).ready(function() {
     $('#ascdesc').on('switchChange.bootstrapSwitch', function(event, state) {
         if(state == false) {
-            var base_url_semmi = window.location.origin + '/';
+            var base_url_semmi = window.location.origin+"/ba-promina" + '/';
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
             var topSkuArray = [];
@@ -102,7 +102,7 @@ $(document).ready(function() {
             });
         }
         else{
-            var base_url_semmi = window.location.origin + '/';
+            var base_url_semmi = window.location.origin+"/ba-promina" + '/';
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
             var topSkuArray = [];

@@ -63,7 +63,7 @@
 
 							<div class="col-md-3">
 
-								<input type="text" class="bs-select form-control input-small date-picker" value="05/29/2016" name="startDate" placeholder="Start Date" data-width="13%">
+								<input type="text" class="bs-select form-control input-small date-picker" value="" name="startDate" placeholder="Start Date" data-width="13%">
 
 
 
@@ -71,7 +71,7 @@
 
 							<div class="col-md-3">
 
-								<input type="text" class="bs-select form-control input-small date-picker" value="<?php echo date("m/d/Y"); ?>" name="endDate" placeholder="End Date" data-width="13%">
+								<input type="text" class="bs-select form-control input-small date-picker" value="" name="endDate" placeholder="End Date" data-width="13%">
 
 							</div>
 

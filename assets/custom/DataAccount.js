@@ -13,7 +13,7 @@ $(document).ready(function() {
 $('#toko').select2({
 
 });
-    var base_url = window.location.origin;
+    var base_url = window.location.origin+"/ba-promina";
     var oTable = $('#dataAccount').DataTable({
         "processing": true,
         "serverSide": true,
@@ -65,7 +65,7 @@ function checkURL(hash)
 
 function loadPage(url)  //the function that loads pages via AJAX
 {
-    var base_url = window.location.origin;
+    var base_url = window.location.origin+"/ba-promina";
     url=url.replace('#page','');    //strip the #page part of the hash and leave only the page number
 
     $('#loading').css('visibility','visible');  //show the rotating gif animation

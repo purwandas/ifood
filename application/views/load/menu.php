@@ -19,14 +19,17 @@
                 <li class="nav-item  ">
                     <?php echo anchor('users', '<span class="title">Data User</span>', 'class="nav-link "'); ?>
                 </li>
+                <li class="nav-item  ">
+                    <?php echo anchor('aktifitas-user', '<span class="title">Aktifitas User</span>', 'class="nav-link "'); ?>
+                </li>
                                 <!-- <li class="nav-item  ">
                                     <?php echo anchor('url', '<span class="title">Tambah User</span>', 'class="nav-link "'); ?>
                                 </li>
                                 <li class="nav-item  ">
                                     <?php echo anchor('url', '<span class="title">Absensi BA</span>', 'class="nav-link "'); ?>
                                 </li> -->
-                            </ul>
-                        </li>
+            </ul>
+                <!-- </li> -->
 
                         <!-- <li class="nav-item  ">
                             <a href="javascript:;" class="nav-link nav-toggle">
@@ -42,7 +45,7 @@
                                     <?php echo anchor('absensi/izin', '<span class="title">Data Izin</span>', 'class="nav-link "'); ?>
                                 </li>
                             </ul> -->
-                        </li>
+                        <!-- </li> -->
 
 
                         <!-- MENU 2 -->
@@ -178,9 +181,6 @@
                                 </li>
                                 <li class="nav-item  ">
                                     <?php echo anchor('topCabang', '<span class="title">Top Cabang</span>', 'class="nav-link "'); ?>
-                                </li>
-                                <li class="nav-item  ">
-                                    <?php echo anchor('topAccount', '<span class="title">Top Account</span>', 'class="nav-link "'); ?>
                                 </li>
                             </ul>
                         </li>

@@ -83,6 +83,16 @@ class Api extends CI_Controller{
 
   }
 
+  public function getUserActivity()
+  {
+    $startDate = date('Y-m-d H:i:s', strtotime($this->input->get('startDate')." 00:00:00"));
+    $endDate = date('Y-m-d H:i:s', strtotime($this->input->get('endDate')." 23:59:59"));
+    $status = $this->input->get('status');
+    $result = $this->sada->getUserActivity(['startDate' => $startDate, 'endDate' => $endDate, 'status' => $status]);
+    echo json_encode($result,JSON_PRETTY_PRINT);
+       // var_dump($result);
+//        echo $startDate;
+  }
 
 
   public function getUser($page,$size)
@@ -1016,6 +1026,104 @@ foreach ($data->result() as $key => $value) {
 
 }
 
+
+
+function test_mail(){
+
+   // load library email
+
+      $this->load->library('PHPMailerAutoload');
+
+      $mail = new PHPMailer;
+
+      $mail->SMTPDebug = 1;
+
+      $mail->Debugoutput = 'html';
+
+      
+
+      // set smtp
+
+      $mail->isSMTP();
+
+      #$mail->CharSet = 'UTF-8';
+
+      $mail->isHTML = false;
+
+      $mail->Host = 'localhost';
+
+      $mail->Port = '587';
+
+      $mail->SMTPAuth = true;
+
+      $mail->AuthType = 'LOGIN';
+
+      $mail->SMTPAutoTLS = false;
+
+      $mail->SMTPSecure = STARTTLS;
+
+      $mail->XMailer = ' ';
+
+      $mail->Username = 'rizaldi@ba-promina.co.id';
+
+      $mail->Password = 'Rizaldi354313';
+
+      $mail->WordWrap = 50;  
+
+#require 'dkimNEW.php';
+#include_once('dkimNEW.php');
+#$dkim = AddDKIM($headers, $subject, $body);
+#$headers['DKIM-Signature'] = $dkim;
+
+      // set email content
+
+      $mail->setFrom('rizaldi@ba-promina.co.id', 'Info OOS');
+      $mail->AddReplyTo('rizaldi@ba-promina.co.id');
+
+      $mail->addAddress('panjinovindrautama@gmail.com');
+//      $mail->addAddress('joejacobs@dewaweb.com');
+      // $mail->addAddress('sada@technologist.com');
+
+      $mail->Subject = 'Test ';
+
+      $mail->Body = 'Email ini dikirim oleh ba-promina.co.id';
+
+      
+      $mail->addCustomHeader("List-Unsubscribe",'<rizaldi@ba-promina.co.id>, <http://ba-promina.co.id>');
+
+      $mail->send();
+
+
+}
+
+public function mail()
+{
+    $config = Array(
+      'protocol' => 'smtp',
+      'smtp_host' => 'ssl://smtp.googlemail.com',
+      'smtp_port' => 465,
+      'smtp_user' => 'rizaldi354313@gmail.com',
+      'smtp_pass' => 'Ldii354313',
+      'mailtype'  => 'html', 
+      'charset'   => 'iso-8859-1',
+      'protocol'  => 'sendmail',
+      'mailpath'  => '/usr/sbin/sendmail',
+      'wordwrap'  => TRUE
+    );
+    $this->load->library('email', $config);
+    $this->email->set_newline("\r\n");
+
+    $this->email->from('rizaldi354313@gmail.com', 'OOS');
+    $this->email->to('rizalidealcom@gmail.com');
+    $this->email->cc('rizaldichozzone@gmail.com');
+
+    $this->email->subject('Email Test');
+    $this->email->message('Testing the email class.');
+
+    $this->email->send();
+    echo $this->email->print_debugger();
+  // mail('rizaldi354313@gmail.com', "aaaa", "aaaaaaaaaaa");
+}
 public function CountTotalContact()
 
 {
@@ -1519,15 +1627,160 @@ public function InputJualProduk()
 
      $dataInsert['qty']       =  $this->input->get('qty');
 
-
-
    }
 
-   $this->db->insert('sada_produk_terjual', $dataInsert);
+   $tgl=date("Y-m-d");
 
+   $insertTerjual=$this->db->insert('sada_produk_terjual', $dataInsert);
+
+   if ($insertTerjual) {
+        $kategori=$this->db
+              ->select('sada_kategori.id as id_kategori, sada_kategori.nama as nama_kategori')
+              ->from('sada_kategori')
+              ->join('sada_produk','sada_produk.id_kategori=sada_kategori.id')
+              ->where('sada_produk.id_produk',"$dataInsert[id_produk]")
+              ->get();
+              $id_kategori_produk=$kategori->row()->id_kategori;
+              echo "$dataInsert[id_produk] - id kategori produk".$id_kategori_produk."<hr>";
+              $nama_kategori_produk=$kategori->row()->nama_kategori;
+
+      $reportSKU1=$this->db->select('id_terjual_cron')
+                    ->from('sada_terjual_cron')
+                    ->where('id_user', $dataInsert['id_user'])
+                    ->where('id_toko', $dataInsert['id_toko'])
+                    ->where('DATE(tanggal)', $tgl)
+                    ->get();
+        $maxCron=$this->db->select('MAX(id_terjual_cron) as id_terjual_cron')
+                    ->from('sada_terjual_cron')
+                    ->get();
+          $CronId = $maxCron->row()->id_terjual_cron;
+      // Insert ke sada_terjual_cron kalau data belum ada
+      if ($reportSKU1->num_rows() == 0) {
+          $CronId += 1;
+          $lokasi=$this->db
+              ->select('sada_toko.nama as nama_toko, sada_toko.store_id as store_id, sada_kota.id_kota, sada_kota.nama_kota, sada_cabang.id_cabang, sada_cabang.nama AS nama_cabang')
+              ->from('sada_toko')
+              ->join('sada_kota','sada_kota.id_kota=sada_toko.id_kota')
+              ->join('sada_cabang','sada_cabang.id_cabang=sada_kota.id_cabang')
+              ->where('sada_toko.id_toko',"$dataInsert[id_toko]")
+              ->get();
+
+              $namaToko = $lokasi->row()->nama_toko;
+              $storeId  = $lokasi->row()->store_id;
+              $idKota   = $lokasi->row()->id_kota;
+              $namaKota = $lokasi->row()->nama_kota;
+              $idCabang = $lokasi->row()->id_cabang;
+              $namaCabang = $lokasi->row()->nama_cabang;
+        $dataSKU['id_terjual_cron'] = $CronId;
+        $dataSKU['id_cabang'] = $idCabang;
+        $dataSKU['nama_cabang'] = $namaCabang;
+        $dataSKU['id_kota'] = $idKota;
+        $dataSKU['nama_kota'] = $namaKota;
+        $dataSKU['id_toko'] = $dataInsert['id_toko'];
+        $dataSKU['nama_toko'] = $namaToko;
+        $dataSKU['store_id'] = $storeId;
+          $userV=$this->db
+              ->select("id_user, nama as nama_user, if(stay = 'Y','Stay','Mobile') as mobilitas ")
+              ->from('sada_user')
+              ->where('sada_user.id_user',"$dataInsert[id_user]")
+              ->get();
+              $namaUser = $userV->row()->nama_user;
+              $mobilitas  = $userV->row()->mobilitas;
+        $dataSKU['id_user'] = $dataInsert['id_user'];
+        $dataSKU['nama_user'] = $namaUser;
+        $dataSKU['mobilitas'] = $mobilitas;
+
+        $dataSKU['tanggal'] = $tgl;
+
+        $dataSKU['box_bc'] = '0';
+        $dataSKU['box_bti'] = '0';
+        $dataSKU['box_rusk'] = '0';
+        $dataSKU['box_pudding'] = '0';
+        $dataSKU['box_others'] = '0';
+        $dataSKU['sachet_bc'] = '0';
+        $dataSKU['sachet_bti'] = '0';
+
+        if ($dataInsert['tipe']=='sachet' && $id_kategori_produk=='1') {
+          $dataSKU['sachet_bc'] = $dataInsert['qty'];
+        }else if ($dataInsert['tipe']=='sachet' && $id_kategori_produk=='2') {
+          $dataSKU['sachet_bti'] = $dataInsert['qty'];
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='1') {
+          $dataSKU['box_bc'] = $dataInsert['qty'];
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='2') {
+          $dataSKU['box_bti'] = $dataInsert['qty'];
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='3') {
+          $dataSKU['box_rusk'] = $dataInsert['qty'];
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='4') {
+          $dataSKU['box_pudding'] = $dataInsert['qty'];
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='5') {
+          $dataSKU['box_others'] = $dataInsert['qty'];
+        }
+        // kalo salahsatu kategori diinsert, value keganti
+        $this->db->insert('sada_terjual_cron', $dataSKU);
+        echo "insert cron";
+        // echo json_encode($dataSKU,TRUE);
+        // echo $this->db->_error_message();
+      }else{
+        if ($dataInsert['tipe']=='sachet' && $id_kategori_produk=='1') {
+          $fieldnya='sachet_bc';
+        }else if ($dataInsert['tipe']=='sachet' && $id_kategori_produk=='2') {
+          $fieldnya='sachet_bti';
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='1') {
+          $fieldnya='box_bc';
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='2') {
+          $fieldnya='box_bti';
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='3') {
+          $fieldnya='box_rusk';
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='4') {
+          $fieldnya='box_pudding';
+        }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='5') {
+          $fieldnya='box_others';
+        }
+        echo "update cron->".$dataInsert['tipe'];
+        $this->db->set("$fieldnya", "$fieldnya+$dataInsert[qty]", FALSE)
+                ->where('id_terjual_cron', $reportSKU1->row()->id_terjual_cron)
+                ->update('sada_terjual_cron');
+          $CronId = $reportSKU1->row()->id_terjual_cron;
+      }
+
+      $reportSKU=$this->db->select('id_terjual_cron_detail')
+                    ->from('sada_terjual_cron_detail')
+                    ->where('id_produk', $dataInsert['id_produk'])
+                    ->where('id_user', $dataInsert['id_user'])
+                    ->where('id_toko', $dataInsert['id_toko'])
+                    ->where('tipe', $dataInsert['tipe'])
+                    ->where('DATE(tgl)', $tgl)
+                    ->get();
+
+        $issetProduk=$reportSKU->num_rows();
+        $issetProduk2=$reportSKU->row()->id_terjual_cron_detail;
+        
+      if ($issetProduk==0) {
+        $detailInsert['id_produk']=$dataInsert['id_produk'];
+        $detailInsert['id_terjual_cron']=$CronId;
+        $detailInsert['id_kategori_produk']=$id_kategori_produk;
+        $detailInsert['nama_kategori_produk']=$nama_kategori_produk;
+        $detailInsert['id_user']=$dataInsert['id_user'];
+        $detailInsert['id_toko']=$dataInsert['id_toko'];
+        $detailInsert['qty']=$dataInsert['qty'];
+        $detailInsert['tipe']=$dataInsert['tipe'];
+        $detailInsert['tgl']=$tgl;
+        $this->db->insert('sada_terjual_cron_detail', $detailInsert);
+        echo "insert detail".json_encode($detailInsert,TRUE);
+      }else{
+        echo "update detail";
+        $this->db->set('qty', "qty+$dataInsert[qty]", FALSE)
+                ->where('id_terjual_cron_detail', $issetProduk2)
+                ->update('sada_terjual_cron_detail');
+      }
+   }
+   
+
+// $this->db->_error_message(); (mysql_error equivalent)
+// $this->db->_error_number();
    $response = array(
 
-    'status' => true,
+    'status' => 'true',
 
     'content' => json_encode($data,TRUE),
 
@@ -2100,9 +2353,367 @@ public function tes()
   var_dump($push);
 }
 
+function test_mail_distro(){
+
+   // load library email
+
+      $this->load->library('PHPMailerAutoload');
+
+      $mail = new PHPMailer();
+
+      $mail->SMTPDebug = 2;
+
+      $mail->Debugoutput = 'html';
+
+      
+
+      // set smtp
+
+      $mail->isSMTP();
+
+      $mail->Host = 'mx1.hostinger.co.id';
+
+      $mail->Port = '2525';
+
+      $mail->SMTPAuth = true;
+
+      $mail->Username = 'info@distro-it.com';
+
+      $mail->Password = 'Test13245';
+
+      $mail->WordWrap = 50;  
+
+      // set email content
+
+      $mail->setFrom('info@distro-it.com', 'Info OOS');
+
+      $mail->addAddress('rizaldi354313@gmail.com');
+
+      $mail->Subject = 'Test PHPMailer';
+
+      $mail->Body = 'Email ini dikirim oleh PHPMailer';
+
+      
+
+      $mail->send();
+
+
+}
+
+
 public function inputOutOfStock()
 
 {
+  $this->load->library('PHPMailerAutoload');
+
+      $mail = new PHPMailer;
+
+      $mail->SMTPDebug = 1;
+
+      $mail->Debugoutput = 'html';
+
+      
+
+      // set smtp
+
+      $mail->isSMTP();
+
+      #$mail->CharSet = 'UTF-8';
+
+      $mail->isHTML = false;
+
+      $mail->Host = 'localhost';
+
+      $mail->Port = '587';
+
+      $mail->SMTPAuth = true;
+
+      $mail->AuthType = 'LOGIN';
+
+      $mail->SMTPAutoTLS = false;
+
+      $mail->SMTPSecure = STARTTLS;
+
+      $mail->XMailer = ' ';
+
+      $mail->Username = 'rizaldi@ba-promina.co.id';
+
+      $mail->Password = 'Rizaldi354313';
+
+      $mail->WordWrap = 50;  
+
+
+
+  $id_us = $this->input->get('id_user');
+
+  $user_id = $this->input->post('user_id');
+
+  $produk_id = $this->input->post('produk_id');
+
+  $store_id = $this->input->get('id_toko');
+  $keterangan = $this->input->post('keterangan');
+
+  if($this->input->get('id_user') == null){
+
+    $response = array(
+
+     'success' => false,
+
+     'content' => 'Gagal memasukan data asd');
+
+    $this->output
+
+    ->set_status_header(200)
+
+    ->set_content_type('application/json', 'utf-8')
+
+    ->set_output(json_encode($response, JSON_PRETTY_PRINT))
+
+    ->_display();
+
+    exit();
+
+  }
+  $datax = $this->sada->getEmail($store_id)->row();
+  $data_emailpic = explode(',', $datax->email_pic);
+  $data_emailaspm = explode(',', $datax->email_aspm);
+
+
+
+  $content = '
+  
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <style type="text/css">
+        table {
+          border-collapse: collapse;
+          border-spacing: 0;
+          width: 100%;
+          border: 1px solid #ddd;
+        }
+
+        th, td {
+          border: none;
+          text-align: left;
+          padding: 8px;
+        }
+
+        tr:nth-child(even){background-color: #f2f2f2}
+    </style>
+    <title></title>
+  </head>
+  <body>
+    <div style="width:100%;height: 900px;background: #336e7b;font-family: sans-serif;" align="center">
+      <div align="center">
+        <span style="color: #fff;font-family: sans-serif;">
+          <b>BA Promina AppRetail</b>
+        </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span style="color: #000;font-family: sans-serif;">
+          <b>To Website</b>
+        </span>
+        <br>
+        <br>
+      </div>
+      <div style="width:95%;height: 800px;background: #fff;">
+        <div style="padding: 10px;">
+          Perihal :
+          <span><b>
+            Report Out Of Stock</b>
+          </span>
+          <hr></hr>
+        </div>
+        <div style="padding-left: 30px;" align="left">
+          <h3>
+            <p style="color: #2ecc71 ;">Kepada Bpk/Ibu <b>'.$datax->pic.'</b></p>
+          </h3>
+          <h4>
+            <p>berikut ini kami laporkan data out of stock di cabang '.$datax->nama.' berdasarkan hasil input brand ambassador(BA) di toko</p>
+          </h4>
+
+          <div style="overflow-x:auto;width:95%;" align="center">
+            <table>
+              <tr>
+                <th>nama BA</th>
+                <th>nama toko</th>
+                <th>nama barang</th>
+                <th>keterangan Out of stock</th>
+                <th>Tipe</th>
+                <th>tanggal</th>
+              </tr>
+              ';
+
+              $baAkses = $this->sada->getUserStatus($id_us);
+
+              if($baAkses->akses == 1){
+
+                $inputJSON = file_get_contents('php://input');
+
+                $dataJson = json_decode($inputJSON, TRUE);
+                foreach ($dataJson as $key => $val) {
+
+                  $inputData = $this->sada->inputOutOfStock(['user_id' => $val['userId'], 'produk_id' => $val['produkId'],'store_id' => $val['storeId'], 'keterangan' => $val['keterangan'], 'tipe'=> $val['tipe']]);
+                  $namaBA = $this->db->select("nama as nama_user")->get_where("sada_user",array('id_user'=>$val['userId']))->row();
+                  $namatoko = $this->db->select("nama as nama_toko")->get_where("sada_toko",array('id_toko'=>$val['storeId']))->row();
+                  $namasku = $this->db->select("nama_produk")->get_where("sada_produk",array('id_produk'=>$val['produkId']))->row();
+                  $content .= '
+                                <tr>
+                                  <td>'.$namaBA->nama_user.'</td>
+                                  <td>'.$namatoko->nama_toko.'</td>
+                                  <td>'.$namasku->nama_produk.'</td>
+                                  <td>'.$val['keterangan'].'</td>
+                                  <td>'.$val['tipe'].'</td>
+                                  <td>'.date("d/m/Y h:i:s").'</td>
+                                </tr>
+
+                  ';
+
+                  if ($inputData) {
+                    $response = array(
+
+                     'success' => true,
+
+                     'decode' => 'aaaa',
+
+                     'content' => 'Berhasil memasukan data');
+                  }
+                }
+
+                $from_email = "rizaldichozzone@gmail.com";
+
+                $mail->CharSet = 'UTF-8';
+
+                $mail->setFrom('oos_info@ba-promina.co.id', 'Info OOS');
+                $exp_mail_pic = explode(',', $datax->email_pic);
+                foreach ($exp_mail_pic as $mail_pic) {
+                  $mail->addAddress($mail_pic);
+                }
+
+                $exp_mail_aspm = explode(',', $datax->email_aspm);
+                foreach ($exp_mail_aspm as $mail_aspm) {
+                  $mail->AddCC($mail_aspm);
+                }
+                  $mail->AddCC("rizkafebriana52@gmail.com");
+                  
+                  $mail->AddCC("rizaldichozzone@gmail.com");
+                $mail->Subject = 'Report Out Of Stock';
+
+
+                
+
+                // $mail->send();
+                $headers = 'From: Info out of stock oos_info@ba-promina.co.id' . "\r\n" ;
+                // $headers .= "Reply-To: ". strip_tags($data_emailpic) . "\r\n";
+                $headers .='X-Mailer: PHP/' . phpversion();
+                $headers .= "MIME-Version: 1.0\r\n";
+                $headers .= "Content-type: text/html; charset=iso-8859-1\r\n"; 
+                $headers .= 'Cc: '.$datax->email_aspm.',rizkafebriana52@gmail.com' . "\r\n";
+                $content .= '</table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>';
+
+      $mail->Body = $content;
+
+
+      $data_emailpic = explode(',', $datax->email_pic);
+      $data_emailaspm = explode(',', $datax->email_aspm);
+      $push = array();
+
+      foreach ($data_emailpic as $key => $value) {
+          array_push($push, $value);
+      }
+
+      foreach ($data_emailaspm as $aspm) {
+          array_push($push, $aspm);
+      }
+      // foreach ($push as $mail_pic) {
+          // if(mail($datax->email_pic, 'Report Out Of Stock',$content,$headers))
+      // $mail->WordWrap   = 80; // set word wrap
+      $mail->MsgHTML($content, '', true);
+      $mail->IsHTML(true);
+      $mail->send();
+      $this->session->set_flashdata("msg","Email sent successfully."); 
+          // else 
+          //   $this->session->set_flashdata("msg",'error');
+      // }
+
+    }else{
+
+      $response = array(
+
+       'success' => false,
+
+       'content' => 'gagal memasukan data');
+
+    }
+
+      //  echo json_encode(['success'=>false,'content'=>'Gagal Memasukan Data'],JSON_PRETTY_PRINT);
+
+    $this->output
+
+    ->set_status_header(200)
+
+    ->set_content_type('application/json', 'utf-8')
+
+    ->set_output(json_encode($response, JSON_PRETTY_PRINT))
+
+    ->_display();
+
+    exit();
+
+
+
+
+
+  }
+
+  
+
+public function inputOutOfStocks()
+
+{
+  $this->load->library('PHPMailerAutoload');
+
+      $mail = new PHPMailer;
+
+      $mail->SMTPDebug = 1;
+
+      $mail->Debugoutput = 'html';
+
+      
+
+      // set smtp
+
+      $mail->isSMTP();
+
+      #$mail->CharSet = 'UTF-8';
+
+      $mail->isHTML = false;
+
+      $mail->Host = 'localhost';
+
+      $mail->Port = '587';
+
+      $mail->SMTPAuth = true;
+
+      $mail->AuthType = 'LOGIN';
+
+      $mail->SMTPAutoTLS = false;
+
+      $mail->SMTPSecure = STARTTLS;
+
+      $mail->XMailer = ' ';
+
+      $mail->Username = 'rizaldi@ba-promina.co.id';
+
+      $mail->Password = 'Rizaldi354313';
+
+      $mail->WordWrap = 50;  
+
 
   $id_us = $this->input->get('id_user');
 
@@ -2255,6 +2866,9 @@ public function inputOutOfStock()
         </div>
       </body>
       </html>';
+
+
+
       $data_emailpic = explode(',', $datax->email_pic);
       $data_emailaspm = explode(',', $datax->email_aspm);
       $push = array();
@@ -2302,6 +2916,8 @@ public function inputOutOfStock()
 
 
   }
+
+
 
 
 
@@ -3191,29 +3807,29 @@ $headers = 'From: rizaldi oos_info@ba-promina.co.id' . "\r\n" ;
 
       $result[] =[
 
-      'idOOS' => $value->id_oos,
+        'idOOS' => $value->id_oos,
+    
+        'namaCabang' => $value->namaCabang,
+    
+        'nama_kota' => $value->nama_kota,
+    
+        'store_id' => $value->store_id,
+    
+        'tipe' => $value->tipe,
+    
+        'namaToko' => $value->namaToko,
+    
+        'namaBa' => $value->namaBa,
+    
+        'date' => $value->date,
+    
+        'namaProduk' => $value->nama_produk,
+    
+        'dayAgo' => $this->carbon->time_elapsed_string($value->date), 
+    
+        'keterangan' => $value->keterangan   
 
-      'namaCabang' => $value->namaCabang,
-
-      'nama_kota' => $value->nama_kota,
-
-      'store_id' => $value->store_id,
-
-      'tipe' => str_replace(',','<br />',$value->tipes),
-
-      'namaToko' => $value->namaToko,
-
-      'namaBa' => $value->namaBa,
-
-      'date' => $value->date,
-
-      'namaProduk' => str_replace(',','<br />',$value->namaProduk),
-
-      'dayAgo' => $this->carbon->time_elapsed_string($value->date), 
-
-      'keterangan' => str_replace(',','<br />',$value->keterangans)   
-
-      ];
+    ];
 
       $tipe = $this->db->select('tipe')->where(array('user_id'=>$value->id_user,
                                                      'store_id'=>$value->id_toko))->get('sada_out_of_stock');

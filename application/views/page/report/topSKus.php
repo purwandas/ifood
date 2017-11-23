@@ -58,11 +58,11 @@
                         <div class="col-md-8" style="margin-top:15px;margin-left:-15px">
 
                             <div class="col-md-2 ">
-                                <input id="startDate" type="text" value="05/29/2016"  class="bs-select form-control input-small date-picker"
+                                <input id="startDate" type="text" value=""  class="bs-select form-control input-small date-picker"
                                 name="startDate" placeholder="Start Date" data-width="13%">
                             </div>
                             <div class="col-md-3 col-md-offset-1 ">
-                                <input id="endDate" type="text" value="<?php echo date("m/d/Y"); ?>" class="bs-select form-control input-small date-picker"
+                                <input id="endDate" type="text" value="" class="bs-select form-control input-small date-picker"
                                 name="endDate" placeholder="End Date" data-width="13%">
                             </div>
 

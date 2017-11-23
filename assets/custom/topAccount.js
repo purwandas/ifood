@@ -10,7 +10,7 @@ $("#top_ba").validate({
 	},
 	submitHandler: function(form) {
 		var fields = $(":input").serializeArray();
-		var base_url = window.location.origin;
+		var base_url = window.location.origin+"/ba-promina";
 		var arr = {"startDate" : fields[1].value, "endDate" : fields[2].value};
 
 		var topSkuArray = [];
@@ -102,7 +102,7 @@ $(document).ready(function() {
 	$('#ascdesc').on('switchChange.bootstrapSwitch', function(event, state) {
 		if (state == false) {
 			var fields = $(":input").serializeArray();
-			var base_url = window.location.origin;
+			var base_url = window.location.origin+"/ba-promina";
 			var arr = {"startDate" : fields[1].value, "endDate" : fields[2].value};
 
 			var topSkuArray = [];
@@ -189,7 +189,7 @@ $(document).ready(function() {
 		}
 		else{
 			var fields = $(":input").serializeArray();
-			var base_url = window.location.origin;
+			var base_url = window.location.origin+"/ba-promina";
 			var arr = {"startDate" : fields[1].value, "endDate" : fields[2].value};
 
 			var topSkuArray = [];

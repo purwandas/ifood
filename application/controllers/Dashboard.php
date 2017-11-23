@@ -12,7 +12,11 @@ class Dashboard extends CI_Controller {
 
 		parent::__construct();
 
-		$this->akses->cek_akses();
+		// $this->akses->cek_akses();		
+		// echo $datSession['id_user'];
+		// echo $datSession['isLogin'];
+		// echo $datSession['nama_user'];
+		// echo $datSession['akses'];
 
 		$this->load->library("Akses");
 
@@ -42,21 +46,21 @@ class Dashboard extends CI_Controller {
 
 		$dataDas['page'] = "achievement";
 
-		// $dataDas['reportAcv'] = $this->sada->acvNatReport();
+		$dataDas['reportAcv'] = $this->sada->acvNatReport();
 
-		// $dataDas['region'] = $this->db->get("sada_region");
+		$dataDas['region'] = $this->db->get("sada_region");
 
-		// foreach ($dataDas['region']->result() as $key => $value) {
+		foreach ($dataDas['region']->result() as $key => $value) {
 
-		// 	$cab = $this->db->get_where("sada_cabang",array('id_region'=>$value->id_region));
+			$cab = $this->db->get_where("sada_cabang",array('id_region'=>$value->id_region));
 
-		// 	foreach ($cab->result() as $vcabang) {
+			foreach ($cab->result() as $vcabang) {
 
-		// 		$dataDas['achievements'] = $this->sada->CountAchievement($vcabang->id_cabang);
+				$dataDas['achievements'] = $this->sada->CountAchievement($vcabang->id_cabang);
 
-		// 	}
+			}
 
-		// }
+		}
 
 		// $dataDas['sampling'] = $this->sada->achievementSamplingReport();
 
@@ -66,6 +70,37 @@ class Dashboard extends CI_Controller {
 
 	}
 
+    public function achievment()
+	{
+		$dataDas['title'] = "Dashboard";
+
+		$dataDas['desk'] = "App Retail";
+
+		
+
+		$dataDas['page'] = "filter_achievment";
+
+		$dataDas['reportAcv'] = $this->sada->acvNatReport();
+
+		$dataDas['region'] = $this->db->get("sada_region");
+
+		foreach ($dataDas['region']->result() as $key => $value) {
+
+			$cab = $this->db->get_where("sada_cabang",array('id_region'=>$value->id_region));
+
+			foreach ($cab->result() as $vcabang) {
+
+				$dataDas['achievements'] = $this->sada->CountAchievement($vcabang->id_cabang);
+
+			}
+
+		}
+
+		// $dataDas['sampling'] = $this->sada->achievementSamplingReport();
+
+		$this->load->view('view_awal', $dataDas, FALSE);
+	}
+    
 	public function keterangan_oos()
 	{
 		
@@ -273,6 +308,7 @@ public function kategori_segmen()
 
 
 		$this->load->view('view_awal', $dataDas, FALSE);
+
 
 	}
 }
@@ -1491,6 +1527,7 @@ public function EditdataUser()
 		$dataDas['tokoa'] = $this->db->get_where("sada_tl_in_kota",array("id_user"=>$dataDas['paramId']));
 		
 	}
+	
 	$this->load->view('view_awal', $dataDas, FALSE);
 
 }
@@ -4911,7 +4948,60 @@ public function reportOutOfStock()
 
 
 
+public function aktifitasUser()
+{
+	if ($this->input->post()) {
+		$date = array('startDate' => date('Y-m-d H:i:s', strtotime($this->input->post('startDate')." 00:00:00")),
+			'endDate' => date('Y-m-d H:i:s', strtotime($this->input->post('endDate')." 23:59:59")));
 
+		$monthAgo = new DateTime($date['startDate']);
+		$monthAgo->modify('-1 month');
+		$monthAgoEnd = new DateTime($date['endDate']);
+		$monthAgoEnd->modify('-1 month');
+		$startDateMonthAgo = $monthAgo->format('Y-m-d H:i:s');
+		$endDateMonthAgo = $monthAgoEnd->format('Y-m-d H:i:s');
+
+		$data = $this->sada->getTopSku($date['startDate'],$date['endDate'],$startDateMonthAgo,$endDateMonthAgo);
+
+		echo json_encode($data,JSON_PRETTY_PRINT);
+	}
+	else{
+		$dataDas['title'] = "User Activity";
+		$dataDas['desk'] = "App Retail";
+		$dataDas['page'] = "users/userActivity";
+		$dataDas['js'][] = "assets/global/plugins/bootstrap/js/bootstrap.min.js";
+		$dataDas['js'][] = "assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js";
+		$dataDas['js'][] = "assets/global/plugins/jquery-validation/js/jquery.validate.min.js";
+
+		$dataDas['js'][] = "assets/global/scripts/app.min.js";
+		$dataDas['js'][] = "assets/pages/scripts/form-validation.min.js";
+		$dataDas['css'][] = "assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css";
+		$dataDas['css'][] = "assets/global/plugins/select2/css/select2-bootstrap.min.css";
+		$dataDas['css'][] = "assets/global/plugins/select2/css/select2.min.css";
+		$dataDas['css'][] = "assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css";
+		$dataDas['css'][] = "assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css";
+		$dataDas['css'][] = "assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css";
+		$dataDas['css'][] = "assets/global/plugins/datatables/datatables.min.css";
+		$dataDas['css'][] = "assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css";
+		$dataDas['js'][] = "assets/global/scripts/datatable.js";
+		$dataDas['js'][] = "assets/global/plugins/datatables/datatables.min.js";
+		$dataDas['js'][] = "assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js";
+		$dataDas['js'][] = "assets/pages/scripts/table-datatables-managed.min.js";
+		$dataDas['js'][] = "assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js";
+		$dataDas['js'][] = "assets/pages/scripts/components-bootstrap-select.min.js";
+		$dataDas['js'][] = "assets/custom/tagSelection.js";
+		$dataDas['js'][] = "assets/custom/tagDate.js";
+		$dataDas['js'][] = "assets/pages/scripts/components-select2.min.js";
+		$dataDas['js'][] = "assets/global/plugins/select2/js/select2.full.min.js";
+		$dataDas['js'][] = "assets/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js";
+		$dataDas['js'][] = "assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js";
+		$dataDas['js'][] = "assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js";
+		$dataDas['js'][] = "assets/pages/scripts/components-date-time-pickers.min.js";
+		// $dataDas['js'][] = "assets/custom/topStockFilter.js";
+		$dataDas['js'][] = "assets/custom/userActivity.js";
+		$this->load->view('view_awal', $dataDas, FALSE);
+	}
+}
 
 
 

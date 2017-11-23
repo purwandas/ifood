@@ -33,7 +33,7 @@
 
 
 $(document).ready(function() {
-    var base_url = window.location.origin;
+    var base_url = window.location.origin+"/ba-promina";
     var oTable = $('#dataProduk').DataTable({
         "processing": true,
         "serverSide": true,

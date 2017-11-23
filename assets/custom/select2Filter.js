@@ -46,8 +46,8 @@ $( document ).ready(function() {
     $('#toko').select2({
       data : [{id:0,text : 'Toko'}],
     });
-    var base_url = window.location.origin;
-    var base_url_semmi = window.location.origin+'';
+    var base_url = window.location.origin+"/ba-promina";
+    var base_url_semmi = window.location.origin+"/ba-promina"+'';
     $.getJSON(base_url_semmi+'/api/getTlCabangAndkota?key=ganteng&id_tl='+id_tl,function(data){
       var arrCabang = [{id:0, text : 'Cabang'}];
       var arrKota = [{id:0, text : 'Kota'}];
@@ -74,8 +74,8 @@ $( document ).ready(function() {
       return;
     }
 
-    var base_url = window.location.origin;
-    var base_url_semmi = window.location.origin+'';
+    var base_url = window.location.origin+"/ba-promina";
+    var base_url_semmi = window.location.origin+"/ba-promina"+'';
     $.getJSON(base_url_semmi+'/api/getAssignedStore?key=ganteng&id_user='+id_user,function(data){
       var arr = [{id:0, text : 'Toko'}];
       $.each(data,function(key,value){
@@ -111,8 +111,8 @@ $( document ).ready(function() {
       fetchCabang();
       return;
     }
-    var base_url = window.location.origin;
-    var base_url_semmi = window.location.origin+'';
+    var base_url = window.location.origin+"/ba-promina";
+    var base_url_semmi = window.location.origin+"/ba-promina"+'';
     $.getJSON(base_url_semmi+'/api/getCabangInKota?key=ganteng&id_toko='+id_toko,function(data){
       var arr = [{id : 0, text : 'Cabang'}];
       arr.push({id : data.id, text : data.nama});
@@ -154,8 +154,8 @@ $( document ).ready(function() {
         return;
       }
 
-      var base_url = window.location.origin;
-      var base_url_semmi = window.location.origin+'';
+      var base_url = window.location.origin+"/ba-promina";
+      var base_url_semmi = window.location.origin+"/ba-promina"+'';
       $.getJSON(base_url_semmi+'/api/getKotaInCabang?key=ganteng&id_cabang='+id_cabang,function(data){
         var arr = [{id:0, text : 'Kota'}];
         $.each(data,function(key,value){
@@ -192,8 +192,8 @@ $( document ).ready(function() {
         var startDate = $('#startDate').val();
         var endDate = $('#endDate').val();
         var filterKategori = $('#sku_kat').val();
-        var base_url = window.location.origin;
-        var base_url_semmi = window.location.origin+'';
+        var base_url = window.location.origin+"/ba-promina";
+        var base_url_semmi = window.location.origin+"/ba-promina"+'';
         var href = base_url_semmi+'/api/excelReport?key=ganteng&ba='+baFilter+'&tl='+tlFilter+'&cabang='+cabangFilter+'&kota='+kotaFilter+'&startDate='+startDate+'&endDate='+endDate+'&toko='+tokoFilter;
         $('#excelDownload').attr('href',href);
         var filter={
@@ -227,7 +227,7 @@ $( document ).ready(function() {
         });
     }
   });
-    var base_url_semmi = window.location.origin+'';
+    var base_url_semmi = window.location.origin+"/ba-promina"+'';
     var data = '';
     var filterKategori = $('#sku_kat').val();
     $.getJSON(base_url_semmi+'/api/getSkuHeader?key=ganteng&filter='+filterKategori,function(data){
@@ -241,25 +241,26 @@ $( document ).ready(function() {
 
 function fetchBa() {
 
-  var base_url = window.location.origin;
-  var base_url_semmi = window.location.origin+'';
+  var base_url = window.location.origin+"/ba-promina";
+  var base_url_semmi = window.location.origin+"/ba-promina"+'';
   $.getJSON(base_url_semmi+'/api/getBaName?key=ganteng',function(data){
     // console.log(JSON.stringify(data));
     var arr = [{id : 0, text : 'BA'}];
     $.each(data ,function(key,value){
-      arr.push({id : key, text : value});
+      arr.push({id : value.id, text : value.nama});
       console.log('hi');
     });
     $('#ba').select2({
       data : arr,
       placeholder: 'Nama ba'
     });
+
   });
 }
 
 function fetchToko() {
-  var base_url = window.location.origin;
-  var base_url_semmi = window.location.origin+'';
+  var base_url = window.location.origin+"/ba-promina";
+  var base_url_semmi = window.location.origin+"/ba-promina"+'';
   $.getJSON(base_url_semmi+'/api/getToko?key=ganteng',function(data){
     // console.log(JSON.stringify(data));
     var arr = [{id : 0, text : 'Toko'}];
@@ -276,8 +277,8 @@ function fetchToko() {
 
 function fetchCabang() {
 
-  var base_url = window.location.origin;
-  var base_url_semmi = window.location.origin+'';
+  var base_url = window.location.origin+"/ba-promina";
+  var base_url_semmi = window.location.origin+"/ba-promina"+'';
   $.getJSON(base_url_semmi+'/api/getAllCabang?key=ganteng',function(data){
     var arr = [{id : 0, text : 'Cabang'}];
     $.each(data ,function(key,value){
@@ -291,8 +292,8 @@ function fetchCabang() {
 }
 
 function fetchTl() {
-  var base_url = window.location.origin;
-  var base_url_semmi = window.location.origin+'';
+  var base_url = window.location.origin+"/ba-promina";
+  var base_url_semmi = window.location.origin+"/ba-promina"+'';
   $.getJSON(base_url_semmi+'/api/getTl?key=ganteng',function(data){
     // console.log(JSON.stringify(data));
     var arr = [{id : 0, text : 'Tl'}];

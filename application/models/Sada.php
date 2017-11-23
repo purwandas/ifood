@@ -81,6 +81,132 @@ class Sada extends CI_Model{
 //            return $mergedArray;
   }
 
+  public function getUserActivity($filter)
+  {
+    $startDate = $filter['startDate'];
+    $endDate = $filter['endDate'];
+    $status = $filter['status'];
+    
+  // SELECT sada_user.id_user, sada_user.nik, sada_user.nama, SUM(sada_produk_terjual.qty)
+  // FROM sada_produk_terjual
+  // INNER JOIN sada_user ON sada_produk_terjual.id_user=sada_user.id_user
+  // WHERE DATE(sada_produk_terjual.tgl) = '2017-11-16'
+  // GROUP BY sada_user.id_user
+
+    if ($status=='Aktif') {
+
+      $user = $this->db->select('sada_user.id_user, sada_user.nik, sada_user.nama as nama_user')
+              ->from('sada_produk_terjual')
+              ->join('sada_user','sada_produk_terjual.id_user = sada_user.id_user')
+              ->where("DATE(sada_produk_terjual.tgl) BETWEEN '$startDate' AND '$endDate'  ")
+              ->group_by('sada_user.id_user')
+              ->order_by('nama_user','ASC')
+              ->get()
+              ->result();
+
+      foreach ($user as $key => $value) {
+        $userId = $value->id_user;
+        $toko=$this->db->distinct()
+              ->select('sada_toko.store_id, sada_toko.nama')
+              ->from('sada_produk_terjual')
+              ->join('sada_toko','sada_toko.id_toko = sada_produk_terjual.id_toko')
+              ->where('id_user',"$userId")
+              ->get()
+              ->result();
+            $store = '';
+            $jml = 0;
+          foreach ($toko as $key2 => $value2) {
+            if ($jml > 0) {
+              $koma = '<br>';
+            }else{
+              $jml++;
+              $koma = '';
+            }
+            $store .= $koma.$value2->nama.' -('.$value2->store_id.')';
+          }
+
+          $response[$value->id_user] = [
+          'idUser' => $value->id_user,
+          'namaUser' => $value->nama_user,
+          'nik' => $value->nik,
+          'toko' => $store
+          ];
+      }
+    }else{
+      // SELECT *
+      // FROM sada_user
+      // WHERE id_user NOT IN
+      // (
+      // SELECT sada_user.id_user
+      //   FROM sada_produk_terjual
+      //   INNER JOIN sada_user ON sada_produk_terjual.id_user=sada_user.id_user
+      //   WHERE DATE(sada_produk_terjual.tgl) = '2017-11-10'
+      //   GROUP BY sada_user.id_user
+      // )
+      // AND status='Y' AND LENGTH(nik) > 5
+      $user = $this->db->select('sada_user.id_user, sada_user.nik, sada_user.nama as nama_user')
+              ->from('sada_user')
+              ->where("
+                id_user NOT IN
+                  (
+                  SELECT sada_user.id_user
+                    FROM sada_produk_terjual
+                    INNER JOIN sada_user ON sada_produk_terjual.id_user=sada_user.id_user
+                    WHERE DATE(sada_produk_terjual.tgl) BETWEEN '$startDate' AND '$endDate'
+                    GROUP BY sada_user.id_user
+                  )")
+              ->where("status","Y")
+              ->where("akses","1")
+              ->where("LENGTH(nik) > 5")
+              ->order_by('nama_user','ASC')
+              ->get()
+              ->result();
+
+    // SELECT GROUP_CONCAT( CONCAT_WS('-', sada_toko.nama, sada_toko.store_id) ORDER BY sada_toko.id_toko) as toko 
+    //     FROM `sada_tokoinuser`
+    // INNER JOIN sada_toko 
+    //   ON FIND_IN_SET(sada_toko.id_toko, sada_tokoinuser.id_toko) > 0
+    // GROUP   BY sada_tokoinuser.id_user
+
+      foreach ($user as $key => $value) {
+        $userId = $value->id_user;
+        $toko=$this->db->select("GROUP_CONCAT( CONCAT_WS(' - ', sada_toko.nama, sada_toko.store_id) ORDER BY sada_toko.id_toko) as toko")
+              ->from('sada_tokoinuser')
+              ->join('sada_toko','FIND_IN_SET(sada_toko.id_toko, sada_tokoinuser.id_toko) > 0')
+              ->where('sada_tokoinuser.id_user',"$userId")
+              ->group_by('sada_tokoinuser.id_user')
+              ->get();
+            $data = array_shift($toko->result_array());
+            $split = explode(',', $data['toko']);
+            $cek = 0;
+            $store='';
+            foreach ($split as $key2 => $value2) {
+              if ($cek > 0) {
+                $jeda='<br>';
+              }else{
+                $jeda='';
+                $cek++;
+              }
+              $store .= $jeda.$value2;
+            }
+            
+            // $store='kampret';
+          // }
+
+          $response[$value->id_user] = [
+          'idUser' => $value->id_user,
+          'namaUser' => $value->nama_user,
+          'nik' => $value->nik,
+          'toko' => $store
+          ];
+      }
+    }
+    return $response;
+    //        return array_merge($info, [  $volume, $volumeMonthAgo]);
+    //            $mergedArray = array_push($info,[$volume,$volumeMonthAgo]);
+    //            return $mergedArray;
+  }
+
   public function deleteAccount($id)
   {
     $this->db->where("id_account",$id);
@@ -104,6 +230,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 1
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_bc_prtj,
   (
   SELECT
@@ -115,6 +243,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 2
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_bti_prtj,
   (
   SELECT
@@ -126,6 +256,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 3
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_rusk_prtj,
   (
   SELECT
@@ -137,6 +269,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 4
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_pudding_prtj,
   (
   SELECT
@@ -148,6 +282,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 5
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_others_prtj,
 
   (SELECT price from sada_kategori where id = 1) as harga_bc,
@@ -193,6 +329,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 1
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_bc_prtj,
   (
   SELECT
@@ -204,6 +342,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 2
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_bti_prtj,
   (
   SELECT
@@ -215,6 +355,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 3
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_rusk_prtj,
   (
   SELECT
@@ -226,6 +368,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 4
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_pudding_prtj,
   (
   SELECT
@@ -237,6 +381,8 @@ class Sada extends CI_Model{
   WHERE
   sdkats.id = 5
   AND ss.id_user = sada_produk_terjual.id_user
+  AND CAST(ss.tgl AS DATE) BETWEEN '$startDate'
+  AND '$endDate'
   ) AS qty_others_prtj,
 
   (SELECT price from sada_kategori where id = 1) as harga_bc,
@@ -341,6 +487,7 @@ class Sada extends CI_Model{
 
 
   $merged = array_merge($topBA, $volume, $volumeMonthAgo);
+  echo "$ashdhasjd";
   $response = [
   ];
   foreach ($merged as $value) {
@@ -651,7 +798,6 @@ WHERE
   $sql = "SELECT
   sada_produk_terjual.id_toko,
   sada_cabang.id_cabang,
-  -- sada_produk.price,
   sdkat.price,
   (
   SELECT
@@ -661,6 +807,7 @@ WHERE
   WHERE
   cab.id_cabang = sada_kota.id_cabang
   ) AS pic_cabang,
+
   (
     SELECT
     cab.nama
@@ -669,50 +816,35 @@ WHERE
     WHERE
     cab.id_cabang = sada_kota.id_cabang
   ) AS nama_cabang,
-  -- (
-  -- SELECT
-  -- cab.target
-  -- FROM
-  -- sada_cabang cab
-  -- WHERE
-  -- cab.id_cabang = sada_kota.id_cabang
-  -- ) AS target_cabang,
-  -- (
-  -- SELECT DISTINCT
-  -- SUM(target_toko.target)
-  -- FROM
-  -- sada_toko toko
-  -- INNER JOIN sada_target target_toko ON toko.id_toko = target_toko.id_toko
-  -- WHERE
-  -- toko.id_toko = sada_produk_terjual.id_toko
-  -- ) AS target_cabang,
-  (SELECT SUM( target ) 
-FROM  `sada_target` 
-WHERE (
 
-SELECT id_kota
-FROM sada_toko
-WHERE sada_toko.id_toko = sada_target.id_toko
-) = (select id_kota from sada_toko a where a.id_toko = sada_produk_terjual.id_toko)) target_cabang,
+  (SELECT SUM( target ) 
+  FROM  `sada_target` 
+  WHERE (
+  SELECT id_kota
+  FROM sada_toko
+  WHERE sada_toko.id_toko = sada_target.id_toko
+  ) = (select id_kota from sada_toko a where a.id_toko = sada_produk_terjual.id_toko))as target_cabang,
+
+    (SELECT
+    COUNT(DISTINCT user_temp.id_user)
+    FROM
+    sada_tokoinuser_temp user_temp
+    INNER JOIN sada_toko as tok ON tok.id_toko = user_temp.id_toko
+    INNER JOIN sada_kota as kot ON tok.id_kota = kot.id_kota
+    INNER JOIN sada_cabang as cab ON kot.id_cabang = cab.id_cabang
+    WHERE
+    user_temp.id_toko = sada_produk_terjual.id_toko
+  ) AS jml_ba_cabang,
+
   (SELECT
-  COUNT(DISTINCT user_temp.id_user)
-  FROM
-  sada_tokoinuser_temp user_temp
-  INNER JOIN sada_toko as tok ON tok.id_toko = user_temp.id_toko
-  INNER JOIN sada_kota as kot ON tok.id_kota = kot.id_kota
-  INNER JOIN sada_cabang as cab ON kot.id_cabang = cab.id_cabang
-  WHERE
-  user_temp.id_toko = sada_produk_terjual.id_toko
-) AS jml_ba_cabang,
-(SELECT
-  COUNT(tok.id_kota)
-  FROM
-  sada_toko tok
-  INNER JOIN sada_kota as kot ON tok.id_kota = kot.id_kota
-  INNER JOIN sada_cabang as cab ON kot.id_cabang = cab.id_cabang
-  WHERE
-  cab.id_cabang = sada_cabang.id_cabang
-) AS jml_toko_cabang
+    COUNT(tok.id_kota)
+    FROM
+    sada_toko tok
+    INNER JOIN sada_kota as kot ON tok.id_kota = kot.id_kota
+    INNER JOIN sada_cabang as cab ON kot.id_cabang = cab.id_cabang
+    WHERE
+    cab.id_cabang = sada_cabang.id_cabang
+  ) AS jml_toko_cabang
 
 FROM
 sada_produk_terjual
@@ -2088,7 +2220,7 @@ public function editUser($paramId)
 
 {
 
-  return  $this->db->select("nik,nama,akses,stay")->from("sada_user")->where("id_user",$paramId)->get()->row();
+  return  $this->db->select("nik,nama,akses,stay,password")->from("sada_user")->where("id_user",$paramId)->get()->row();
 
 }
 
@@ -2200,6 +2332,10 @@ public function getBaName()
   ->from('sada_user')
 
   ->where('akses',2)
+
+  ->where('status','Y')
+
+  ->order_by('nama','ASC')
 
   ->get();
 
@@ -3319,7 +3455,7 @@ public function outOfStockReport($filter)
 
   $b = $filter['endDate'];
 
-  $this->db->select(['o.id id_oos','GROUP_CONCAT(o.keterangan) keterangans','GROUP_CONCAT(p.nama_produk) namaProduk','CAST(o.date  AS DATE) date','t.nama namaToko','c.nama namaCabang','k.nama_kota','t.store_id','u.nama namaBa','GROUP_CONCAT(o.tipe) tipes','t.id_toko','u.id_user'])
+  $this->db->select(['o.id id_oos','o.keterangan','p.nama_produk','CAST(o.date  AS DATE) date','t.nama namaToko','c.nama namaCabang','k.nama_kota','t.store_id','u.nama namaBa','o.tipe','t.id_toko','u.id_user'])
 
   ->from('sada_out_of_stock o')
 
@@ -3333,7 +3469,7 @@ public function outOfStockReport($filter)
 
   ->join('sada_user u','o.user_id = u.id_user','inner')
 
-  ->group_by(['o.user_id','CAST(o.date  AS DATE)','o.store_id'])
+//  ->group_by(['o.user_id','CAST(o.date  AS DATE)','o.store_id'])
 
   ->where("o.date BETWEEN '$a'  AND '$b' ");
 

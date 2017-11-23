@@ -7,3 +7,14 @@
 [05-Sep-2016 06:56:01 UTC] PHP Parse error:  syntax error, unexpected ':' in /home/bapromin/public_html/index.php on line 72
 [05-Sep-2016 06:56:02 UTC] PHP Parse error:  syntax error, unexpected ':' in /home/bapromin/public_html/index.php on line 72
 [05-Sep-2016 06:56:04 UTC] PHP Parse error:  syntax error, unexpected ':' in /home/bapromin/public_html/index.php on line 72
+[23-Nov-2016 14:45:05 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 11:45:46 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:02:45 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:02:54 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:08:44 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:08:45 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:08:50 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:10:06 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:10:12 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:10:51 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340
+[14-Feb-2017 12:13:24 Asia/Jakarta] PHP Fatal error:  Call to a member function result() on null in /home/bapromin/public_html/application/views/page/users/edit_user.php on line 340

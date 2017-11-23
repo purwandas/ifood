@@ -1,5 +1,5 @@
 $("#form_keterangan").validate({
-    // var base_url = window.location.origin;
+    // var base_url = window.location.origin+"/ba-promina";
     rules: {
         keterangan: "required",
     },
@@ -10,7 +10,7 @@ $("#form_keterangan").validate({
     submitHandler: function(form) {
         console.log("yes");
 
-        var base_url = window.location.origin;
+        var base_url = window.location.origin+"/ba-promina";
         var fields = $(":input").serializeArray();
         var arr = {"store_id" : fields[1].value, "kota" : fields[2].value, "toko" : fields[3].value};
         $.ajax({
@@ -19,7 +19,7 @@ $("#form_keterangan").validate({
             "data" : arr,
             "dataType" : 'json',
             success : function(data) {
-                window.location.href = window.location.origin+'/keterangan_oos.jsp';
+                window.location.href = window.location.origin+"/ba-promina"+'/keterangan_oos.jsp';
             }
         });
     }

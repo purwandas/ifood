@@ -76,7 +76,7 @@
 
                     else{
 
-                        var base_url = window.location.origin;
+                        var base_url = window.location.origin+"/ba-promina";
 
                         $("#row_kota").show();
 
@@ -135,7 +135,7 @@
     $("#select_cabang").on('change', function(event) {
         event.preventDefault();
         var id = $(this).val();
-        var base_url = window.location.origin;
+        var base_url = window.location.origin+"/ba-promina";
 
         $.ajax({
             url: base_url+'/users/changeCabang.jsp?key=ganteng',

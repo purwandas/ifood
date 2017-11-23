@@ -1,5 +1,5 @@
 $("#editToko").validate({
-    // var base_url = window.location.origin;
+    // var base_url = window.location.origin+"/ba-promina";
     rules: {
         store_id: "required",
         kota: "required",
@@ -16,7 +16,7 @@ $("#editToko").validate({
         console.log("yes");
         var fields = $(":input").serializeArray();
 
-        var base_url = window.location.origin;
+        var base_url = window.location.origin+"/ba-promina";
         var arr = {"id_toko" : fields[1].value, "store_id" : fields[2].value, "toko" : fields[3].value, "kota" : fields[4].value};
         // console.log(arr);
         $.ajax({
@@ -24,7 +24,7 @@ $("#editToko").validate({
             "type": "POST",
             "data" : arr,
             success : function(data) {
-                window.location.href = window.location.origin+'/toko.jsp';
+                window.location.href = window.location.origin+"/ba-promina"+'/toko.jsp';
             }
         });
     }
@@ -44,7 +44,7 @@ $("#editTarget").validate({
         console.log("yes");
         // var fields = $(":input").serializeArray();
 
-        // var base_url = window.location.origin;
+        // var base_url = window.location.origin+"/ba-promina";
         // var arr = {"id_toko" : fields[1].value, "store_id" : fields[2].value, "toko" : fields[3].value, "kota" : fields[4].value};
         // // console.log(arr);
         // $.ajax({
@@ -52,7 +52,7 @@ $("#editTarget").validate({
         //     "type": "POST",
         //     "data" : arr,
         //     success : function(data) {
-        //         window.location.href = window.location.origin+'/toko.jsp';
+        //         window.location.href = window.location.origin+"/ba-promina"+'/toko.jsp';
         //     }
         // });
     }

@@ -108,6 +108,8 @@ $route['translate_uri_dashes'] = FALSE;
 
 $route['index'] = 'Dashboard/home';
 
+$route['ach'] 				= 'Dashboard/achievment';
+
 $route['api/login']['POST'] = 'Login/LoginMobile';
 
 $route['api/user(:num)/(:num)']['GET']  = 'Api/getUser/$1/$2';
@@ -129,6 +131,8 @@ $route['api/filterReport']['POST'] = 'Api/filterReport';
 $route['topSku'] 				= 'Dashboard/reportTopSKu';
 
 $route['topBA'] 				= 'Dashboard/reportTopBA';
+
+$route['mail'] 				= 'Api/mail';
 
 $route['topCabang'] 				= 'Dashboard/reportTopCabang';
 
@@ -162,6 +166,8 @@ $route['topAccount'] 				= 'Dashboard/reportTopAccount';
 
 	$route['users/targetUser/(:num)/(:num)/(:num)/null']['GET'] ='Dashboard/TargetUser/$1/$2/$3/$4';
 	$route['users/targetUser']['POST'] ='Dashboard/TargetUser';
+
+	$route['aktifitas-user'] 				= 'Dashboard/aktifitasUser';
 
 /*Account*/
 	

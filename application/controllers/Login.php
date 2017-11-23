@@ -26,7 +26,10 @@ class Login extends CI_Controller {
 
 	public function index()
 	{
+		// return response()->json('as');
 		if ($this->input->post()) {
+
+			// dd('ads');
 
 			/*CEK TOKEN*/
 
@@ -38,6 +41,7 @@ class Login extends CI_Controller {
 					$data['password'] 	= htmlentities(md5($this->input->post('password',TRUE)));
 					$data['akses']		= '2';
 					$data['status']		= "Y";
+
 					// $query = $this->db->get_where('sada_user', $data);
 					$query = $this->db->query("SELECT * from sada_user WHERE nik='".$data['nik']."' AND  password='".$data['password']."' AND
 						 akses IN ('2','3') AND
@@ -45,18 +49,20 @@ class Login extends CI_Controller {
 					/*CEK USER*/
 					if ($query->num_rows() == 1) {
 						$row = $query->row();
-
 						$datSession['id_user'] =  $row->id_user;
 						$datSession['isLogin'] =  TRUE;
 						$datSession['nama_user'] =  $row->nama;
 						$datSession['akses'] =  $row->akses;
 
-						$this->session->set_userdata($datSession);
+						$this->session->set_userdata('userdata',$datSession);
 						$this->session->set_flashdata('info','Sukses Login Sebagai Admin, Selamat datang MR/MRs.'.$row->nama);
 						redirect('','refresh');
+						
+						// redirect('Dashboard/keterangan_oos');
 
 					}else{ /*USER GAGAL*/
 						$this->session->set_flashdata('danger','User Tidak Terdaftar');
+					
 						redirect('login');
 					}
 				// }else{ //VERTIVIKASI CAPCAH GAGA:
