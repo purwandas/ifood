@@ -1699,6 +1699,19 @@ function _getLoginMobile($dataLogin)
 
   }
 
+  function newGetProdukAndCategory()
+
+  {
+
+    return $this->db->select(['sada_produk.id_produk','sada_produk.nama_produk','sada_kategori.nama as kategoriNama'])
+    ->from('sada_terjual_cron_detail')
+    ->join('sada_produk',"sada_terjual_cron_detail.id_produk = sada_produk.id_produk AND id_terjual_cron = '$value->id_terjual_cron' AND tipe='box'",'right')
+    ->join('sada_kategori','sada_produk.id_kategori = sada_kategori.id')
+    ->order_by('sada_kategori.id ASC, sada_produk.nama_produk ASC')
+    ->get();
+
+  }
+
   function getCountProduk()
 
   {

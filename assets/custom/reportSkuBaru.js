@@ -220,7 +220,7 @@ $( document ).ready(function() {
             }
           ],
           ajax : {
-            'url' : '/api/filterReportOptimization?key=ganteng',
+            'url' : '/ba-promina/api/newFilterReportOptimization?key=ganteng',
             'type' : 'POST',
             'data' : filter
           }
@@ -230,7 +230,7 @@ $( document ).ready(function() {
     var base_url_semmi = window.location.origin+"/ba-promina"+'';
     var data = '';
     var filterKategori = $('#sku_kat').val();
-    $.getJSON(base_url_semmi+'/api/getSkuHeader?key=ganteng&filter='+filterKategori,function(data){
+    $.getJSON(base_url_semmi+'/api/newGetSkuHeader?key=ganteng&filter='+filterKategori,function(data){
       $.each(data,function(key,value){
         data += '<th>'+ value +'</th>';
         $('#headerSku').html(data);

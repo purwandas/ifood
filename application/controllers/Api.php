@@ -1641,7 +1641,7 @@ public function InputJualProduk()
               ->where('sada_produk.id_produk',"$dataInsert[id_produk]")
               ->get();
               $id_kategori_produk=$kategori->row()->id_kategori;
-              echo "$dataInsert[id_produk] - id kategori produk".$id_kategori_produk."<hr>";
+              // echo "$dataInsert[id_produk] - id kategori produk".$id_kategori_produk."<hr>";
               $nama_kategori_produk=$kategori->row()->nama_kategori;
 
       $reportSKU1=$this->db->select('id_terjual_cron')
@@ -1717,7 +1717,7 @@ public function InputJualProduk()
         }
         // kalo salahsatu kategori diinsert, value keganti
         $this->db->insert('sada_terjual_cron', $dataSKU);
-        echo "insert cron";
+        // echo "insert cron";
         // echo json_encode($dataSKU,TRUE);
         // echo $this->db->_error_message();
       }else{
@@ -1736,7 +1736,7 @@ public function InputJualProduk()
         }else if ($dataInsert['tipe']=='box' && $id_kategori_produk=='5') {
           $fieldnya='box_others';
         }
-        echo "update cron->".$dataInsert['tipe'];
+        // echo "update cron->".$dataInsert['tipe'];
         $this->db->set("$fieldnya", "$fieldnya+$dataInsert[qty]", FALSE)
                 ->where('id_terjual_cron', $reportSKU1->row()->id_terjual_cron)
                 ->update('sada_terjual_cron');
@@ -1766,9 +1766,9 @@ public function InputJualProduk()
         $detailInsert['tipe']=$dataInsert['tipe'];
         $detailInsert['tgl']=$tgl;
         $this->db->insert('sada_terjual_cron_detail', $detailInsert);
-        echo "insert detail".json_encode($detailInsert,TRUE);
+        // echo "insert detail".json_encode($detailInsert,TRUE);
       }else{
-        echo "update detail";
+        // echo "update detail";
         $this->db->set('qty', "qty+$dataInsert[qty]", FALSE)
                 ->where('id_terjual_cron_detail', $issetProduk2)
                 ->update('sada_terjual_cron_detail');
@@ -1780,7 +1780,7 @@ public function InputJualProduk()
 // $this->db->_error_number();
    $response = array(
 
-    'status' => 'true',
+    'status' => true,
 
     'content' => json_encode($data,TRUE),
 
@@ -3240,6 +3240,113 @@ $headers = 'From: rizaldi oos_info@ba-promina.co.id' . "\r\n" ;
 
   }
 
+  public function newFilterReportOptimization()
+  {
+    $filterTl = ($this->input->post('tl') == "0") ? "" : $this->input->post('tl');
+
+    $filterName = ($this->input->post('ba') == "0") ? "" : $this->input->post('ba');
+
+    $filterToko = (null != $this->input->post('toko') && $this->input->post('toko') !=0) ? $this->input->post('toko') : "";
+
+    $filterCabang = ($this->input->post('cabang') == "0") ? "" : $this->input->post('cabang');
+
+    $filterKota = ($this->input->post('kota') == "0") ? "" : $this->input->post('kota');
+
+    $filterHasilReport =($this->input->post('filterKategori') == "0") ? "" : $this->input->post('filterKategori');
+
+    $startDate =  date('Y-m-d H:i:s', strtotime($this->input->post("startDate")." 00:00:00"));
+
+    $endDate = date('Y-m-d H:i:s', strtotime($this->input->post("endDate")." 23:59:59"));
+
+    // echo "$filterTl - $filterName - $filterToko - $filterCabang - $filterKota - $filterHasilReport - $startDate - $endDate<hr>";
+
+    $cron = $this->db->query('select * from sada_terjual_cron');
+
+    $jumlahData=0;
+    foreach ($cron->result() as $key => $value) {
+      // echo "$value->id_terjual_cron<br>";
+      $penampungData[$jumlahData] = [
+        // $value->id_terjual_cron,
+        $value->nama_cabang,
+        $value->nama_kota,
+        $value->nama_toko,
+        $value->store_id,
+        $value->nama_user,
+        $value->mobilitas,
+        $value->tanggal,
+        $value->box_bc,
+        $value->box_bti,
+        $value->box_rusk,
+        $value->box_pudding,
+        $value->box_others,
+        $value->sachet_bc,
+        $value->sachet_bti
+      ];
+      $query="
+        select 
+        sada_produk.id_produk, sada_produk.nama_produk, sada_kategori.nama as nama_kategori, sada_terjual_cron_detail.qty, sada_terjual_cron_detail.tipe 
+        from sada_terjual_cron_detail 
+        RIGHT JOIN sada_produk ON sada_terjual_cron_detail.id_produk = sada_produk.id_produk AND id_terjual_cron = '$value->id_terjual_cron' AND tipe='box'
+        INNER JOIN sada_kategori ON sada_produk.id_kategori = sada_kategori.id 
+        ORDER BY id_kategori ASC, sada_produk.nama_produk ASC
+        ";
+        // echo "$query<hr>";
+      $cronDetail = $this->db->query($query);
+      $checkQyt[$jumlahData] = ['qty'];
+      foreach ($cronDetail->result() as $keyDet => $valueDet) {
+        // echo $valueDet->nama_produk."<br>";
+        // array_push($penampungData[$jumlahData], ($valueDet->nama_produk == null ) ? 0:"$valueDet->nama_kategori $valueDet->nama_produk $valueDet->tipe");
+        array_push($penampungData[$jumlahData], ($valueDet->qty == null ) ? '0':$valueDet->qty);
+        // array_push($checkQyt[$jumlahData], ($valueDet->qty == null ) ? '0':$valueDet->qty);
+
+        if($valueDet->nama_kategori == 'BC' || $valueDet->nama_kategori == 'BTI'){
+          $querySachet="
+            select qty from sada_terjual_cron_detail
+            where id_terjual_cron='$value->id_terjual_cron' and tipe='sachet' and id_produk='$valueDet->id_produk'
+          ";
+          $sachetQty = $this->db->query($querySachet);
+          $qtySachet = $sachetQty->row()->qty;
+          // echo "QTY Sachet:: $qtySachet<br>";
+          array_push($penampungData[$jumlahData], ($qtySachet == null ) ? '0':$qtySachet);
+          // array_push($checkQyt[$jumlahData], ($qtySachet == null ) ? 'S0':'s'.$qtySachet);
+
+        }
+      }
+      $jumlahData++;
+    }
+
+    // $produk = $this->sada->newGetProdukAndCategory();
+    // echo $this->db->last_query();
+    // $result[0] = ['produk'];
+
+    // foreach ($produk->result() as $value){
+
+    //   array_push($result[0],$value->kategoriNama.' '.$value->nama_produk.' Box');
+
+    //   if($value->kategoriNama == 'BC' || $value->kategoriNama == 'BTI'){
+
+    //     array_push($result[0],$value->kategoriNama.' '.$value->nama_produk.'Sachet');
+
+    //   }
+
+    // }
+    // echo "<hr>SIZE: ".sizeof($checkQyt)."<br>";
+    // print_r($checkQyt);
+    // echo "<br>";
+    // print_r($result);
+    // for ($i=0;$i<sizeof($checkQyt);$i++) {
+    //   echo "$result[0][$key] -> $checkQyt[$jumlahData][$key]<br>";
+    // }
+    // echo json_encode($result[0], JSON_PRETTY_PRINT);
+
+    $response =[
+
+    'data' => $penampungData,
+
+    ];
+
+    echo json_encode($response,TRUE);
+  }
   public function filterReportOptimization()
 
   {
@@ -4685,6 +4792,87 @@ public function getSkuHeader($value='')
 
 }
 
+public function newGetSkuHeader($value='')
+
+{
+
+  $filterHasilReport =($this->input->get('filter') == "0") ? "" : $this->input->get('filter');
+
+  $result = [];
+
+  if($filterHasilReport == "1"){
+
+    $result [0]= [
+
+    'cabang','kota','Store Id','Nama Store','Nama Ba','Mobile/Stay','Tanggal',
+
+    'Akumulasi Box BC','Akumulasi Box BTI','Akumulasi Box Rusk','Akumulasi Box Pudding','Akumulasi Box Others'
+
+    ];
+
+  }else if($filterHasilReport == "2"){
+
+    $result [0]= [
+
+    'cabang','kota','Store Id','Nama Store','Nama Ba','Mobile/Stay','Tanggal',
+
+    'Akumulasi Sachet BC','Akumulasi Sachet BTI'
+
+    ];
+
+  }else if($filterHasilReport == "3"){
+
+    $result [0]= [
+
+    'cabang','kota','Store Id','Nama Store','Nama Ba','Mobile/Stay','Tanggal'
+
+    ];
+
+    $produk = $this->sada->newGetProdukAndCategory();
+
+    foreach ($produk->result() as $value){
+
+      array_push($result[0],$value->kategoriNama.' '.$value->nama_produk.' Box');
+
+      if($value->kategoriNama == 'BC' || $value->kategoriNama == 'BTI'){
+
+        array_push($result[0],$value->kategoriNama.' '.$value->nama_produk.' Sachet');
+
+      }
+
+    }
+
+  }else{
+
+    $result [0]= [
+
+    'cabang','kota','Store Id','Nama Store','Nama Ba','Mobile/Stay','Tanggal',
+
+    'Akumulasi Box BC','Akumulasi Box BTI','Akumulasi Box Rusk','Akumulasi Box Pudding','Akumulasi Box Others',
+
+    'Akumulasi Sachet BC','Akumulasi Sachet BTI'
+
+    ];
+
+    $produk = $this->sada->newGetProdukAndCategory();
+
+    foreach ($produk->result() as $value){
+
+      array_push($result[0],$value->kategoriNama.' '.$value->nama_produk.' Box');
+
+      if($value->kategoriNama == 'BC' || $value->kategoriNama == 'BTI'){
+
+        array_push($result[0],$value->kategoriNama.' '.$value->nama_produk.' Sachet');
+
+      }
+
+    }
+
+  }
+
+  echo json_encode($result[0], JSON_PRETTY_PRINT);
+
+}
 
 
 public function checkInputPhoneNumber()
